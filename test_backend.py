@@ -1,0 +1,49 @@
+from backend.database import DatabaseManager
+from backend.parking_service import ParkingService
+
+
+database = DatabaseManager()
+
+database.initialize_database()
+
+
+# Create some parking spaces
+
+for number in [
+    "A01",
+    "A02",
+    "A03",
+    "A04",
+    "A05"
+]:
+    database.add_parking_space(number)
+
+
+parking = ParkingService(database)
+
+
+print("\nRegistering vehicle...\n")
+
+result = parking.register_vehicle(
+    license_plate="ABC123",
+    customer_name="John Smith"
+)
+
+print(result)
+
+
+print("\nMarking space occupied...\n")
+
+parking.mark_space_occupied(
+    result["space_number"]
+)
+
+
+print("\nChecking vehicle out...\n")
+
+transaction = parking.checkout_vehicle(
+    license_plate="ABC123",
+    hourly_rate=5.00
+)
+
+print(transaction)

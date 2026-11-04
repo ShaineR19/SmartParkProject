@@ -1,9 +1,121 @@
 from datetime import datetime
 from backend.database import DatabaseManager
+from backend.payment_service import PaymentService
 
 class ParkingService:
     def __init__(self, database: DatabaseManager):
         self.database = database
+
+    def checkout_vehicle(
+        self,
+        license_plate,
+        hourly_rate
+    ):
+        license_plate = license_plate.strip().upper()
+
+        with self.database.connect() as conn:
+
+            session = conn.execute(
+            """
+            SELECT
+                ps.session_id,
+                ps.entry_time,
+                ps.space_id,
+                p.space_number
+            FROM parking_sessions ps
+
+            JOIN vehicles v
+                ON ps.vehicle_id = v.vehicle_id
+
+            JOIN parking_spaces p
+                ON ps.space_id = p.space_id
+
+            WHERE v.license_plate = ?
+            AND ps.status = 'ACTIVE'
+            """,
+            (license_plate,)
+        ).fetchone()
+
+        if not session:
+            raise ValueError(
+                "No active parking session found."
+            )
+
+        entry_time = datetime.fromisoformat(
+            session["entry_time"]
+        )
+
+        exit_time = datetime.now()
+
+        duration = PaymentService.calculate_duration(
+            entry_time,
+            exit_time
+        )
+
+        fee = PaymentService.calculate_fee(
+            duration,
+            hourly_rate
+        )
+
+        # Complete the parking session
+
+        conn.execute(
+            """
+            UPDATE parking_sessions
+            SET exit_time = ?,
+                status = 'COMPLETED'
+            WHERE session_id = ?
+            """,
+            (
+                exit_time.isoformat(),
+                session["session_id"]
+            )
+        )
+
+        # Release parking space
+
+        conn.execute(
+            """
+            UPDATE parking_spaces
+            SET status = 'AVAILABLE'
+            WHERE space_id = ?
+            """,
+            (session["space_id"],)
+        )
+
+        # Save transaction
+
+        cursor = conn.execute(
+            """
+            INSERT INTO transactions (
+                session_id,
+                parking_duration,
+                payment_amount,
+                completed_at
+            )
+            VALUES (?, ?, ?, ?)
+            """,
+            (
+                session["session_id"],
+                duration,
+                fee,
+                exit_time.isoformat()
+            )
+        )
+
+        transaction_id = cursor.lastrowid
+
+        conn.commit()
+
+        return {
+            "transaction_id": transaction_id,
+            "license_plate": license_plate,
+            "space_number": session["space_number"],
+            "entry_time": entry_time,
+            "exit_time": exit_time,
+            "duration_hours": duration,
+            "payment_amount": fee,
+        }
 
     def register_vehicle(
         self,
@@ -12,7 +124,7 @@ class ParkingService:
         license_plate = license_plate.strip().upper()
 
         if not license_plate:
-            raise Valueerror(
+            raise ValueError(
                 "License plate cannot be empty."
             )
 
