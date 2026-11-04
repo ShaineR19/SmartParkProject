@@ -109,7 +109,7 @@ st.markdown(
 page = "Login"
 
 # Display selected page
-while login_status() == False:
+while login_status == False:
     show_login()
 
 if login_status == True:
