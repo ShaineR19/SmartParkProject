@@ -111,7 +111,7 @@ page = "Login"
 # Display selected page
 if page == "Login":
     show_login()
-    if st.session_state.logged_in = True:
+    if st.session_state.logged_in == True:
         page = navigation()
 
         if page == "Home":
