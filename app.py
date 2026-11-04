@@ -106,13 +106,14 @@ st.markdown(
 )
 
 # Navigation
-page = navigation()
-
+page = "Login"
 
 # Display selected page
+if page == "Login":
+    show_login()
 if page == "Home":
     show_dashboard()
-
+    
 elif page == "Parking":
     show_parking()
 
