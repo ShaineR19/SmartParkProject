@@ -107,22 +107,20 @@ st.markdown(
 
 # Navigation
 page = "Login"
-page = show_login()
-
 
 # Display selected page
 if page == "Login":
     show_login()
-if page == "Home":
-    show_dashboard()
-    
-elif page == "Parking":
-    show_parking()
-
-    if login_status == True:
-        
+    if st.session_state.logged_in = True:
         page = navigation()
-        if page == "Parking":
+
+        if page == "Home":
+            show_dashboard()
+    
+        elif page == "Parking":
+            show_parking()
+        
+        elif page == "Parking":
             show_parking()
 
         elif page == "Map":
@@ -144,5 +142,3 @@ elif page == "Parking":
         elif page == "Reports":
             show_reports()
 
-        elif page == "Home":
-            show_dashboard()
