@@ -1,20 +1,39 @@
 import streamlit as st
 
 def navigation():
-    pages ={
-        "Home": "app.py",
-        "Parking": "parking.py",
-        "Map": "map.py",
-        "Vehicles": "vehicles.py",
-        "Reservations": "reservations.py",
-        "Payments": "payments.py",
-        "Reports": "reports.py",
-        "Login": "login.py"
-    }
-    selected_page = st.sidebar.radio(
-        "Navigation",
-        list(pages.keys())
-    )
 
-    return selected_page 
+    #Sidebar heading
+    st.sidebar.markdown(
+        """
+        <div style="padding: 15px;">
+            <h2 style="color: #17243A; margin-bottom: 0">
+                🅿️ Smart Park
+            </h2>
+            <p style="color: #64748B; font-size: 13px;">
+                Parking Managament System
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    st.sidebar.divider()
+
+    #Navigation menu
+    selected_page = st.sidebar.radio(
+        "MAIN MENU",
+        [
+            "Home",
+            "Parking",
+            "Map",
+            "Vehicles",
+            "Payments",
+            "Reports",
+            "Login"
+        ]
+    )
+    st.sidebar.divider()
+
+    st.sidebar.caption("Smart Park Management System")
+
+    return selected_page
     
