@@ -1,8 +1,10 @@
+
 import streamlit as st
+
 
 def navigation():
 
-    #Sidebar heading
+    # Sidebar heading
     st.sidebar.markdown(
         """
         <div style="padding: 15px;">
@@ -10,15 +12,16 @@ def navigation():
                 🅿️ Smart Park
             </h2>
             <p style="color: #64748B; font-size: 13px;">
-                Parking Managament System
+                Parking Management System
             </p>
         </div>
         """,
         unsafe_allow_html=True
     )
+
     st.sidebar.divider()
 
-    #Navigation menu
+    # Navigation menu
     selected_page = st.sidebar.radio(
         "MAIN MENU",
         [
@@ -27,13 +30,14 @@ def navigation():
             "Map",
             "Vehicles",
             "Payments",
-            "Reports",
-            "Login"
-        ]
+            "Reports"
+        ],
+        index=0,
+        key="main_navigation"
     )
+
     st.sidebar.divider()
 
     st.sidebar.caption("Smart Park Management System")
 
     return selected_page
-    

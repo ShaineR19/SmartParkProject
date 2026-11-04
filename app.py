@@ -1,7 +1,5 @@
-
 import streamlit as st
 
-from backend.payment_service import PaymentService
 from navigation import navigation
 from dashboard import show_dashboard
 from parking import show_parking
@@ -105,23 +103,39 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Navigation
-page = "Home"
+# Check whether the user is logged in
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
-# Display selected page
-if not st.session_state.get("logged_in", False):
+# Show Login page first
+if not st.session_state.logged_in:
+
     show_login()
 
+# Show the rest of the application after login
 else:
 
     page = navigation()
 
+    # Logged-in user information and Logout button
+    with st.sidebar:
+        st.divider()
+
+        st.caption(
+            f"Logged in as: {st.session_state.get('username', '')}"
+        )
+
+        if st.button("Logout", use_container_width=True):
+
+            st.session_state.logged_in = False
+            st.session_state.username = ""
+
+            st.rerun()
+
+    # Application pages
     if page == "Home":
         show_dashboard()
-    
-    elif page == "Parking":
-        show_parking()
-        
+
     elif page == "Parking":
         show_parking()
 
@@ -129,9 +143,9 @@ else:
         st.title("Parking Lot Map")
 
         map_data = {
-                "lat": [34.6805],
-                "lon": [-79.1950]
-            }
+            "lat": [34.6805],
+            "lon": [-79.1950]
+        }
 
         st.map(map_data)
 
@@ -143,4 +157,3 @@ else:
 
     elif page == "Reports":
         show_reports()
-

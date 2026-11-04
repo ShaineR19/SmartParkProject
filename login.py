@@ -1,23 +1,35 @@
 
 import streamlit as st
 
+
 def show_login():
-    st.title("Smart Park Login")
-    st.write("Log in or create an account to access Smart Park.")
-    st.divider()
 
     # Temporary account storage
     if "users" not in st.session_state:
         st.session_state.users = {}
 
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
+
+    # Login page heading
+    st.title("Smart Park Login")
+    st.write("Log in or create an account to access Smart Park.")
+    st.divider()
+
+    # Login and Create Account tabs
     login_tab, signup_tab = st.tabs(["Login", "Create Account"])
 
     # LOGIN
+
     with login_tab:
 
         st.subheader("Welcome Back")
 
-        username = st.text_input("Username", key="login_username")
+        username = st.text_input(
+            "Username",
+            key="login_username"
+        )
+
         password = st.text_input(
             "Password",
             type="password",
@@ -26,13 +38,22 @@ def show_login():
 
         if st.button("Login", use_container_width=True):
 
-            if username in st.session_state.users:
+            if not username.strip() or not password:
+                st.error("Please enter your username and password.")
+
+            elif username in st.session_state.users:
+
                 if st.session_state.users[username] == password:
 
                     st.session_state.logged_in = True
                     st.session_state.username = username
+
+                    # Open Dashboard after login
+                    st.session_state["main_navigation"] = "Home"
+
                     st.success("Login successful!")
-                    
+                    st.rerun()
+
                 else:
                     st.error("Incorrect password.")
 
@@ -40,19 +61,31 @@ def show_login():
                 st.error("Account not found. Please create an account.")
 
     # CREATE ACCOUNT
+
     with signup_tab:
 
         st.subheader("Create a New Account")
 
-        name = st.text_input("Full Name", key="signup_name")
-        new_username = st.text_input("Choose a Username")
+        name = st.text_input(
+            "Full Name",
+            key="signup_name"
+        )
+
+        new_username = st.text_input(
+            "Choose a Username",
+            key="signup_username"
+        )
+
         new_password = st.text_input(
             "Create Password",
-            type="password"
+            type="password",
+            key="signup_password"
         )
+
         confirm_password = st.text_input(
             "Confirm Password",
-            type="password"
+            type="password",
+            key="confirm_password"
         )
 
         if st.button("Create Account", use_container_width=True):
@@ -72,18 +105,9 @@ def show_login():
             else:
                 st.session_state.users[new_username] = new_password
 
-                st.success("Account created successfully! You can now log in.")
+                st.success(
+                    "Account created successfully! You can now log in."
+                )
 
-    # LOGOUT
-    if st.session_state.get("logged_in", False):
-
-        st.divider()
-        st.success(f"Logged in as {st.session_state.username}")
-
-        if st.button("Logout"):
-            st.session_state.logged_in = False
-            logged_in = False
-            st.session_state.username = ""
-            st.rerun()
-
+    st.divider()
     st.caption("Smart Park Management System")
