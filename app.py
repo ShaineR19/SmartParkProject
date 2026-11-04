@@ -1,6 +1,7 @@
 
 import streamlit as st
 
+from backend.payment_service import PaymentService
 from navigation import navigation
 from dashboard import show_dashboard
 from parking import show_parking
