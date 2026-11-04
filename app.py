@@ -106,12 +106,12 @@ st.markdown(
 )
 
 # Navigation
-login_status(False)
 page = "Login"
 
 # Display selected page
 while login_status == False:
-    show_login()
+    if page == "Login":
+        show_login()
 
 if login_status == True:
     page = navigation()

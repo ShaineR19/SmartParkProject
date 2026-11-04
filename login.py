@@ -3,6 +3,8 @@ import streamlit as st
 
 def show_login():
 
+    login_status(False)
+    
     st.title("Smart Park Login")
     st.write("Log in or create an account to access Smart Park.")
     st.divider()
