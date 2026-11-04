@@ -1,6 +1,7 @@
 
 import streamlit as st
 import pandas as pd
+from backend.payment_service import PaymentService
 
 
 def show_dashboard():
