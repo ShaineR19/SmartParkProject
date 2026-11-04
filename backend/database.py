@@ -16,7 +16,7 @@ class DatabaseManager:
 
         return connection
 
-    def initalize_database(self):
+    def initialize_database(self):
         with self.connect() as conn:
 
             conn.execute("""
