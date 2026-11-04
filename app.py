@@ -8,7 +8,7 @@ from parking import show_parking
 from vehicles import show_vehicles
 from payments import show_payments
 from reports import show_reports
-from login import show_login, login_status
+from login import show_login
 
 
 # Page configuration
@@ -106,14 +106,14 @@ st.markdown(
 )
 
 # Navigation
-page = "Login"
+page = "login"
+logged_in = login_status()
 
 # Display selected page
-while login_status == False:
-    if page == "Login":
-        show_login()
+if not st.session_state.get("logged_in", False):
+    show_login()
 
-if login_status == True:
+else:
     page = navigation()
 
     if page == "Home":

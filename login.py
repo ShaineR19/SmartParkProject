@@ -2,9 +2,6 @@
 import streamlit as st
 
 def show_login():
-
-    login_status(False)
-    
     st.title("Smart Park Login")
     st.write("Log in or create an account to access Smart Park.")
     st.divider()
@@ -32,12 +29,10 @@ def show_login():
             if username in st.session_state.users:
                 if st.session_state.users[username] == password:
 
-                    st.session_state.logged_in = login_status(True)
+                    st.session_state.logged_in = True
                     st.session_state.username = username
-
                     st.success("Login successful!")
                     
-
                 else:
                     st.error("Incorrect password.")
 
@@ -87,10 +82,8 @@ def show_login():
 
         if st.button("Logout"):
             st.session_state.logged_in = False
+            logged_in = False
             st.session_state.username = ""
             st.rerun()
 
     st.caption("Smart Park Management System")
-
-def login_status(bool):
-    return bool
