@@ -109,36 +109,37 @@ st.markdown(
 page = "Login"
 
 # Display selected page
-if page == "Login":
+while login_status() = False:
     show_login()
-    if login_status == True:
-        page = navigation()
 
-        if page == "Home":
-            show_dashboard()
+if login_status == True:
+    page = navigation()
+
+    if page == "Home":
+        show_dashboard()
     
-        elif page == "Parking":
-            show_parking()
+    elif page == "Parking":
+        show_parking()
         
-        elif page == "Parking":
-            show_parking()
+    elif page == "Parking":
+        show_parking()
 
-        elif page == "Map":
-            st.title("Parking Lot Map")
+    elif page == "Map":
+        st.title("Parking Lot Map")
 
-            map_data = {
+        map_data = {
                 "lat": [34.6805],
                 "lon": [-79.1950]
             }
 
-            st.map(map_data)
+        st.map(map_data)
 
-        elif page == "Vehicles":
-            show_vehicles()
+    elif page == "Vehicles":
+        show_vehicles()
 
-        elif page == "Payments":
-            show_payments()
+    elif page == "Payments":
+        show_payments()
 
-        elif page == "Reports":
-            show_reports()
+    elif page == "Reports":
+        show_reports()
 
