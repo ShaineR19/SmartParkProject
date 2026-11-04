@@ -106,6 +106,7 @@ st.markdown(
 )
 
 # Navigation
+login_status(False)
 page = "Login"
 
 # Display selected page
