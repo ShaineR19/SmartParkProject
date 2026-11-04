@@ -34,8 +34,10 @@ def show_login():
                     st.session_state.username = username
 
                     st.success("Login successful!")
+                    login_status = True
 
                 else:
+                    login_status(False)
                     st.error("Incorrect password.")
 
             else:
@@ -88,3 +90,6 @@ def show_login():
             st.rerun()
 
     st.caption("Smart Park Management System")
+
+def login_status(login_check):
+    return login_check

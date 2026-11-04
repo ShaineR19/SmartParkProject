@@ -8,7 +8,7 @@ from parking import show_parking
 from vehicles import show_vehicles
 from payments import show_payments
 from reports import show_reports
-from login import show_login
+from login import show_login, login_status
 
 
 # Page configuration
@@ -107,6 +107,8 @@ st.markdown(
 
 # Navigation
 page = "Login"
+page = show_login()
+
 
 # Display selected page
 if page == "Login":
@@ -117,24 +119,30 @@ if page == "Home":
 elif page == "Parking":
     show_parking()
 
-elif page == "Map":
-    st.title("Parking Lot Map")
+    if login_status == True:
+        
+        page = navigation()
+        if page == "Parking":
+            show_parking()
 
-    map_data = {
-        "lat": [34.6805],
-        "lon": [-79.1950]
-    }
+        elif page == "Map":
+            st.title("Parking Lot Map")
 
-    st.map(map_data)
+            map_data = {
+                "lat": [34.6805],
+                "lon": [-79.1950]
+            }
 
-elif page == "Vehicles":
-    show_vehicles()
+            st.map(map_data)
 
-elif page == "Payments":
-    show_payments()
+        elif page == "Vehicles":
+            show_vehicles()
 
-elif page == "Reports":
-    show_reports()
+        elif page == "Payments":
+            show_payments()
 
-elif page == "Login":
-    show_login()
+        elif page == "Reports":
+            show_reports()
+
+        elif page == "Home":
+            show_dashboard()
