@@ -26,7 +26,6 @@ print("\nRegistering vehicle...\n")
 
 result = parking.register_vehicle(
     license_plate="ABC123",
-    customer_name="John Smith"
 )
 
 print(result)
@@ -47,3 +46,24 @@ transaction = parking.checkout_vehicle(
 )
 
 print(transaction)
+
+print("\nLot Summary:\n")
+print(parking.get_lot_summary())
+
+
+print("\nAll Spaces:\n")
+
+for space in parking.get_all_spaces():
+    print(space)
+
+
+print("\nActive Vehicles:\n")
+
+for vehicle in parking.get_active_vehicles():
+    print(vehicle)
+
+
+print("\nTransactions:\n")
+
+for transaction in parking.get_transactions():
+    print(transaction)

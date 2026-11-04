@@ -31,10 +31,10 @@ class DatabaseManager:
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS parking_spaces (
 
-                    spaced_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    space_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     space_number TEXT UNIQUE NOT NULL,
 
-                    status TEXT NOT NULL Defulat 'AVAILABLE',
+                    status TEXT NOT NULL DEFAULT 'AVAILABLE',
                     CHECK (
                         status IN (
                             'AVAILABLE',
@@ -72,9 +72,9 @@ class DatabaseManager:
             """)
 
             conn.execute("""
-                CREAT TABLE IF NOT EXISTS transactions (
+                CREATE TABLE IF NOT EXISTS transactions (
 
-                    transaction_id INTGER PRIMARY KEY AUTOINCREMENT,
+                    transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     session_id INTEGER UNIQUE NOT NULL,
                     parking_duration REAL NOT NULL,
                     payment_amount REAL NOT NULL,
@@ -87,23 +87,23 @@ class DatabaseManager:
 
             conn.commit()
 
-def add_parking_space(self, space_number):
-    with self.connect() as conn:
-        try:
-            conn.execute("""
-            
-                INSERT INTO parking_spaces(
+    def add_parking_space(self, space_number):
+        with self.connect() as conn:
+            try:
+                conn.execute(
+                    """
+                    INSERT INTO parking_spaces(
                     space_number,
                     status
+                    )
+                    values (?, 'AVAILABLE')
+                    """,
+                    (space_number,)
                 )
-                values (?, 'AVAILABLE')
-                """,
-                (space_number,)
-            )
 
-            conn.commit()
+                conn.commit()
 
-        except sqlite3.IntegrityError:
-            print(
-                f"Parking space {space_number} already exists."
-            )
+            except sqlite3.IntegrityError:
+                print(
+                    f"Parking space {space_number} already exists."
+                )

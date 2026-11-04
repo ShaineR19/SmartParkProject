@@ -120,7 +120,7 @@ class ParkingService:
     def register_vehicle(
         self,
         license_plate
-    ):
+        ):
         license_plate = license_plate.strip().upper()
 
         if not license_plate:
@@ -157,10 +157,9 @@ class ParkingService:
                 cursor = conn.execute(
                     """
                     INSERT INTO vehicles (
-                        license_plate,
-                        customer_name
+                        license_plate
                     )
-                    VALUES (?, ?)
+                    VALUES (?)
                     """,
                     (
                         license_plate,
@@ -191,13 +190,13 @@ class ParkingService:
                 UPDATE parking_spaces
                 SET status = 'ASSIGNED'
                 WHERE space_id = ?
-                """
+                """,
                 (space_id,)
             )
 
             entry_time = datetime.now()
 
-            cursor.conn.execute(
+            cursor = conn.execute(
                 """
                 INSERT INTO parking_sessions (
                     vehicle_id,
@@ -238,7 +237,7 @@ class ParkingService:
 
             if not space:
                 raise ValueError(
-                    "Parking space does noe exist."
+                    "Parking space does not exist."
                 )
             if space["status"] != "ASSIGNED":
                 raise ValueError(
@@ -253,3 +252,165 @@ class ParkingService:
                 (space_number,)
             )
             conn.commit()
+
+    def get_all_spaces(self):
+        with self.database.connect() as conn:
+            rows = conn.execute(
+            """
+            SELECT
+                space_id,
+                space_number,
+                status
+            FROM parking_spaces
+            ORDER BY space_number
+            """
+            ).fetchall()
+
+        return [dict(row) for row in rows]
+
+    def get_available_spaces(self):
+        with self.database.connect() as conn:
+            rows = conn.execute(
+            """
+            SELECT
+                space_id,
+                space_number,
+                status
+            FROM parking_spaces
+            WHERE status = 'AVAILABLE'
+            ORDER BY space_number
+            """
+            ).fetchall()
+
+        return [dict(row) for row in rows]
+
+
+    def get_assigned_spaces(self):
+        with self.database.connect() as conn:
+            rows = conn.execute(
+            """
+            SELECT
+                space_id,
+                space_number,
+                status
+            FROM parking_spaces
+            WHERE status = 'ASSIGNED'
+            ORDER BY space_number
+            """
+            ).fetchall()
+
+        return [dict(row) for row in rows]
+
+
+    def get_occupied_spaces(self):
+        with self.database.connect() as conn:
+            rows = conn.execute(
+            """
+            SELECT
+                space_id,
+                space_number,
+                status
+            FROM parking_spaces
+            WHERE status = 'OCCUPIED'
+            ORDER BY space_number
+            """
+            ).fetchall()
+
+        return [dict(row) for row in rows]
+
+    def get_lot_summary(self):
+        with self.database.connect() as conn:
+            row = conn.execute(
+            """
+            SELECT
+                COUNT(*) AS total_spaces,
+
+                SUM(
+                    CASE
+                        WHEN status = 'AVAILABLE'
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS available_spaces,
+
+                SUM(
+                    CASE
+                        WHEN status = 'ASSIGNED'
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS assigned_spaces,
+
+                SUM(
+                    CASE
+                        WHEN status = 'OCCUPIED'
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS occupied_spaces
+
+            FROM parking_spaces
+            """
+            ).fetchone()
+
+        return dict(row)
+
+    def get_active_vehicles(self):
+        with self.database.connect() as conn:
+            rows = conn.execute(
+            """
+            SELECT
+                ps.session_id,
+                v.vehicle_id,
+                v.license_plate,
+                p.space_id,
+                p.space_number,
+                p.status AS space_status,
+                ps.entry_time
+
+            FROM parking_sessions ps
+
+            JOIN vehicles v
+                ON ps.vehicle_id = v.vehicle_id
+
+            JOIN parking_spaces p
+                ON ps.space_id = p.space_id
+
+            WHERE ps.status = 'ACTIVE'
+
+            ORDER BY ps.entry_time
+            """
+            ).fetchall()
+
+        return [dict(row) for row in rows]
+
+    def get_transactions(self):
+        with self.database.connect() as conn:
+            rows = conn.execute(
+            """
+            SELECT
+                t.transaction_id,
+                v.license_plate,
+                p.space_number,
+                ps.entry_time,
+                ps.exit_time,
+                t.parking_duration,
+                t.payment_amount,
+                t.completed_at
+
+            FROM transactions t
+
+            JOIN parking_sessions ps
+                ON t.session_id = ps.session_id
+
+            JOIN vehicles v
+                ON ps.vehicle_id = v.vehicle_id
+
+            JOIN parking_spaces p
+                ON ps.space_id = p.space_id
+
+            ORDER BY t.completed_at DESC
+            """
+            ).fetchall()
+
+        return [dict(row) for row in rows]
