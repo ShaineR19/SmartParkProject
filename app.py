@@ -106,14 +106,14 @@ st.markdown(
 )
 
 # Navigation
-page = "login"
-logged_in = login_status()
+page = "Home"
 
 # Display selected page
 if not st.session_state.get("logged_in", False):
     show_login()
 
 else:
+
     page = navigation()
 
     if page == "Home":
