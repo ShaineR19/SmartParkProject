@@ -2,6 +2,9 @@
 import streamlit as st
 import pandas as pd
 
+from backend.database import DatabaseManager
+from backend.parking_service import ParkingService
+
 
 def show_vehicles():
 
@@ -10,9 +13,43 @@ def show_vehicles():
     st.write("Register vehicles and manage vehicle information.")
     st.divider()
 
-    # Initialize vehicle storage
-    if "vehicles" not in st.session_state:
-        st.session_state.vehicles = []
+    # Connect to database
+    db = DatabaseManager()
+    db.initialize_database()
+
+    parking_service = ParkingService(db)
+
+    # Add vehicle_name column if it does not already exist
+    with db.connect() as conn:
+
+        columns = [
+            column["name"]
+            for column in conn.execute(
+                "PRAGMA table_info(vehicles)"
+            ).fetchall()
+        ]
+
+        if "vehicle_name" not in columns:
+            conn.execute(
+                "ALTER TABLE vehicles ADD COLUMN vehicle_name TEXT"
+            )
+
+    # Make sure all 100 parking spaces exist
+    existing_spaces = parking_service.get_all_spaces()
+
+    existing_space_numbers = {
+        space["space_number"] for space in existing_spaces
+    }
+
+    letters = "ABCDEFGHIJ"
+
+    for letter in letters:
+        for number in range(1, 11):
+
+            space_number = f"{letter}{number}"
+
+            if space_number not in existing_space_numbers:
+                db.add_parking_space(space_number)
 
     # Vehicle registration section
     st.subheader("Register a Vehicle")
@@ -46,27 +83,37 @@ def show_vehicles():
 
                 else:
 
-                    # Check for duplicate license plates
-                    existing_plates = [
-                        vehicle["License Plate"].upper()
-                        for vehicle in st.session_state.vehicles
-                    ]
+                    try:
 
-                    if license_plate.strip().upper() in existing_plates:
-                        st.error("This vehicle is already registered.")
+                        # Register vehicle and assign parking space
+                        result = parking_service.register_vehicle(
+                            license_plate.strip().upper()
+                        )
 
-                    else:
+                        # Save vehicle make/model in SQLite
+                        with db.connect() as conn:
 
-                        # Save vehicle information
-                        new_vehicle = {
-                            "License Plate": license_plate.strip().upper(),
-                            "Vehicle": vehicle_name.strip(),
-                            "Status": "Registered"
-                        }
+                            conn.execute(
+                                """
+                                UPDATE vehicles
+                                SET vehicle_name = ?
+                                WHERE license_plate = ?
+                                """,
+                                (
+                                    vehicle_name.strip(),
+                                    license_plate.strip().upper()
+                                )
+                            )
 
-                        st.session_state.vehicles.append(new_vehicle)
+                            conn.commit()
 
-                        st.success("Vehicle registered successfully!")
+                        st.success(
+                            f"Vehicle registered successfully! "
+                            f"Assigned space: {result['space_number']}"
+                        )
+
+                    except ValueError as error:
+                        st.error(str(error))
 
     st.write("")
     st.divider()
@@ -74,16 +121,37 @@ def show_vehicles():
     # Registered vehicles section
     st.subheader("Registered Vehicles")
 
-    # Display vehicle count
-    total_vehicles = len(st.session_state.vehicles)
+    # Retrieve vehicle information from SQLite
+    with db.connect() as conn:
 
-    st.metric("Total Registered Vehicles", total_vehicles)
-
-    if st.session_state.vehicles:
-
-        vehicle_data = pd.DataFrame(
-            st.session_state.vehicles
+        vehicle_data = pd.read_sql_query(
+            """
+            SELECT
+                v.license_plate AS 'License Plate',
+                COALESCE(v.vehicle_name, '') AS 'Vehicle',
+                CASE
+                    WHEN p.status = 'ASSIGNED' THEN 'Assigned'
+                    WHEN p.status = 'OCCUPIED' THEN 'Occupied'
+                    ELSE 'Registered'
+                END AS 'Status'
+            FROM vehicles v
+            LEFT JOIN parking_sessions s
+                ON v.vehicle_id = s.vehicle_id
+                AND s.status = 'ACTIVE'
+            LEFT JOIN parking_spaces p
+                ON s.space_id = p.space_id
+            ORDER BY v.license_plate
+            """,
+            conn
         )
+
+    # Display vehicle count
+    st.metric(
+        "Total Registered Vehicles",
+        len(vehicle_data)
+    )
+
+    if not vehicle_data.empty:
 
         st.dataframe(
             vehicle_data,

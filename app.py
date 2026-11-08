@@ -7,6 +7,7 @@ from vehicles import show_vehicles
 from payments import show_payments
 from reports import show_reports
 from login import show_login
+from backend.database import DatabaseManager
 
 
 # Page configuration
@@ -15,6 +16,9 @@ st.set_page_config(
     page_icon="🅿️",
     layout="wide"
 )
+# Initialize database
+db = DatabaseManager()
+db.initialize_database()
 
 # Shared design - Green Theme
 st.markdown(
