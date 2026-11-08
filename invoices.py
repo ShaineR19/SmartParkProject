@@ -23,15 +23,15 @@ def show_invoices():
                 COALESCE(v.vehicle_name, '') AS vehicle_name,
                 p.space_number,
                 s.entry_time,
-                COALESCE(s.exit_time, t.completed_at, datetime('now')) AS exit_time,
-                COALESCE(t.parking_duration, 1.0) AS parking_duration,
-                COALESCE(t.payment_amount, 5.00) AS payment_amount,
-                COALESCE(t.completed_at, s.exit_time, '') AS completed_at
-            FROM vehicles v
-            JOIN parking_sessions s ON v.vehicle_id = s.vehicle_id
+                COALESCE(s.exit_time, t.completed_at) AS exit_time,
+                t.parking_duration,
+                t.payment_amount,
+                t.completed_at
+            FROM transactions t
+            JOIN parking_sessions s ON t.session_id = s.session_id
+            JOIN vehicles v ON s.vehicle_id = v.vehicle_id
             JOIN parking_spaces p ON s.space_id = p.space_id
-            LEFT JOIN transactions t ON s.session_id = t.session_id
-            ORDER BY s.session_id DESC
+            ORDER BY t.transaction_id DESC
             """,
             conn,
         )
