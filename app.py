@@ -7,6 +7,7 @@ from vehicles import show_vehicles
 from payments import show_payments
 from reports import show_reports
 from login import show_login
+from invoices import show_invoices
 from backend.database import DatabaseManager
 
 
@@ -161,3 +162,6 @@ else:
 
     elif page == "Reports":
         show_reports()
+
+    elif page == "Invoices":  
+        show_invoices()

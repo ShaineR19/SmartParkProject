@@ -30,7 +30,8 @@ def navigation():
             "Map",
             "Vehicles",
             "Payments",
-            "Reports"
+            "Reports",
+            "Invoices"
         ],
         index=0,
         key="main_navigation"
