@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 
+from datetime import datetime
 from backend.database import DatabaseManager
 from backend.parking_service import ParkingService
 
@@ -51,23 +52,19 @@ def show_payments():
                 f"**{selected_vehicle['space_number']}**"
             )
 
-            parking_hours = st.number_input(
-                "Parking Duration (hours)",
-                min_value=0.5,
-                step=0.5,
-                value=1.0
-            )
-
-            parking_fee = parking_hours * hourly_rate
+# Calculate elapsed hours from the database entry_time
+            entry_time = datetime.fromisoformat(selected_vehicle["entry_time"])
+            elapsed_seconds = max((datetime.now() - entry_time).total_seconds(), 0)
+            parking_hours = round(elapsed_seconds / 3600.0, 2)
+            parking_fee = round(parking_hours * hourly_rate, 2)
 
             st.divider()
-
-            col1, col2 = st.columns(2)
-
+            col1, col2, col3 = st.columns(3)
             with col1:
-                st.metric("Hourly Rate", f"${hourly_rate:.2f}")
-
+                st.metric("Occupied Time", f"{parking_hours:.2f} hrs")
             with col2:
+                st.metric("Hourly Rate", f"${hourly_rate:.2f}")
+            with col3:
                 st.metric("Total Parking Fee", f"${parking_fee:.2f}")
 
             if st.button(
