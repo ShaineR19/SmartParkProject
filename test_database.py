@@ -13,18 +13,15 @@ from backend.payment_service import PaymentService
 class TestSmartPark(unittest.TestCase):
     # Create a temporary testing database
     def setUp(self):
-        # Database Name
-        self.temp_dir = tempfile.TemporaryDirectory()
-        db_path = Path(self.temp_dir.name) / "test.db"
-
-        # Create Database
-        self.db = DatabaseManager(db_path)
+        # SQLite in-memory
+        db_uri = f"file:{self._testMethodName}?mode=memory&cache=shared"
+        self.db = DatabaseManager(db_uri)
         self.db.initialize_database()
         self.parking = ParkingService(self.db)
 
     # Remove the temporary test database
     def tearDown(self):
-        self.temp_dir.cleanup()
+        pass
 
     # UT-01: Parking Space Assignment
     def test_parking_space_assignment(self):
