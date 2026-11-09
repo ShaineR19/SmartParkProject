@@ -2,15 +2,23 @@ from pathlib import Path
 import sqlite3
 
 class DatabaseManager:
-    def __init__(self, db_path=None):
+    def __init__(self, db_path=None):   
         if db_path is None:
             project_folder = Path(__file__).resolve().parent.parent
             db_path = project_folder / "data" / "smart_park.db"
-        self.db_path = Path(db_path)
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Check if the path is in-memory
+        self.is_uri = isinstance(db_path, str) and (db_path.startswith("file:") or db_path == ":memory:")
+        
+        if self.is_uri:
+            self.db_path = str(db_path)
+        else:
+            self.db_path = Path(db_path)
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
     def connect(self):
-        connection = sqlite3.connect(self.db_path)
+        # uri=True fixes erroneous file during in-memory tests
+        connection = sqlite3.connect(str(self.db_path), uri=True)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
         return connection
