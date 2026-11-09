@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from pathlib import Path
-from invoice_service import generate_parking_invoice_pdf
+from backend.invoice_service import generate_parking_invoice_pdf
 
 
 def run_test():

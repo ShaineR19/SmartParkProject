@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 from backend.database import DatabaseManager
-from invoice_service import generate_parking_invoice_pdf
+from backend.invoice_service import generate_parking_invoice_pdf
 
 
 def show_invoices():
