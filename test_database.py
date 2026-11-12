@@ -91,7 +91,8 @@ class TestSmartPark(unittest.TestCase):
         
         # Calculate Hourly Rate 
         fee = PaymentService.calculate_fee(
-            duration, hourly_rate)
+            duration, hourly_rate
+        )
 
         # Verify Duration and Fee
         self.assertEqual(duration, 4)
@@ -150,7 +151,6 @@ class TestSmartPark(unittest.TestCase):
             ).fetchone()
         self.assertEqual(space["status"], "AVAILABLE")
 
-
     # UT-06: Duplicate Vehicle Registration
     def test_duplicate_vehicle_registration(self):
         # Add Parking Spaces
@@ -180,10 +180,9 @@ class TestSmartPark(unittest.TestCase):
 
         self.assertEqual(count, 1)
 
-
     # UT-07: Duplicate Parking Space
     def test_duplicate_parking_space(self):
-
+        # Add Parking Space
         self.db.add_parking_space("A1")
 
         # Attempt to add the same space again
@@ -203,18 +202,17 @@ class TestSmartPark(unittest.TestCase):
 
         self.assertEqual(count, 1)
 
-
     # UT-08: Exit Without Active Session
     def test_exit_without_active_session(self):
-
+        # Add Parking Space
         self.db.add_parking_space("A1")
 
         # No vehicle has been registered or parked
         with self.assertRaises(ValueError):
             self.parking.checkout_vehicle(
-            license_plate="ABC1234",
-            hourly_rate=5.00
-        )
+                license_plate="ABC1234",
+                hourly_rate=5.00
+            )
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
